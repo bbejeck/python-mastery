@@ -1,7 +1,7 @@
 import csv
 
 
-def readportfolio(filename):
+def read_portfolio(filename):
     portfolio = []
     with open(filename) as f:
         rows = csv.reader(f)
