@@ -1,5 +1,5 @@
+import collections.abc
 import csv
-import sys
 from collections import namedtuple
 from collections import Counter
 from datetime import datetime
@@ -7,6 +7,43 @@ from pprint import pprint
 
 Rowt = namedtuple('Rowt', ['route', 'date', 'daytype', 'rides'])
 date_format = '%m/%d/%Y'
+
+
+class RideData(collections.abc.Sequence):
+    def __init__(self):
+        self.routes = []
+        self.dates = []
+        self.daytypes = []
+        self.numrides = []
+
+    def __len__(self):
+        return len(self.routes)
+
+    def __getitem__(self, index):
+        if type(index) is slice:
+            print(f'returning from slice {index}')
+            ride_data_slice = RideData()
+            sl_routes = self.routes[index]
+            sl_date = self.dates[index]
+            sl_daytype = self.daytypes[index]
+            sl_rides = self.numrides[index]
+            for route, date, dt, rides in zip(sl_routes, sl_date, sl_daytype, sl_rides):
+                ride_data_slice.append({'route': route, 'date': date, 'daytype': dt, 'rides': rides})
+            return ride_data_slice
+        else:
+            print(f'returning value at index {index}')
+            return {
+                'route': self.routes[index],
+                'date': self.dates[index],
+                'daytype': self.daytypes[index],
+                'rides': self.numrides[index]
+             }
+
+    def append(self, d):
+        self.routes.append(d['route'])
+        self.dates.append(d['date'])
+        self.daytypes.append(d['daytype'])
+        self.numrides.append(d['rides'])
 
 
 class Row:
@@ -27,7 +64,7 @@ class Rowslot:
         self.rides = rides
 
 
-def read_rides_as(filename, container='tuple'):
+def read_rides_as(filename, container='dict'):
     '''
     Read the bus ride data as a list of tuples
     :param container: container storage type
@@ -35,7 +72,7 @@ def read_rides_as(filename, container='tuple'):
     :return: A list of tuples
     '''
 
-    records = []
+    records = RideData()
     with open(filename) as f:
         rows = csv.reader(f)
         headings = next(rows)
@@ -81,7 +118,7 @@ def find_largest_increase():
 
     for route, rides in year_one_counter.items():
         big_increase.append((route, ten_year_counter[route] / rides))
-    
+
     sorted_by_increase = sorted(big_increase, key=lambda r: int(r[1]), reverse=True)
     pprint(sorted_by_increase[0:10])
 
@@ -95,10 +132,10 @@ def filter_by_year(date):
 
 
 if __name__ == '__main__':
-    # import tracemalloc
-    #
+    import tracemalloc
+
     # container = sys.argv[1]
-    # tracemalloc.start()
-    # rows = read_rides_as('Data/ctabus.csv', container)
-    # print(f'Memory Use for container type {container}:  {tracemalloc.get_traced_memory()}')
-    find_largest_increase()
+    tracemalloc.start()
+    rows = read_rides_as('Data/ctabus.csv')
+    print(f'Memory Use for container type RideData:  {tracemalloc.get_traced_memory()}')
+    # find_largest_increase()
