@@ -1,7 +1,10 @@
 import csv
+from decimal import Decimal
 
 
 class Stock:
+    types = [str, int, float]
+
     def __init__(self, name, shares, price):
         self.name = name
         self.shares = shares
@@ -14,20 +17,32 @@ class Stock:
         self.shares = self.shares - num_shares
 
     @classmethod
-    def read_portfolio(cls, filename):
+    def from_row(cls, row):
+        values = [func(val) for func, val in zip(cls.types, row)]
+        return cls(*values)
+
+    @staticmethod
+    def read_portfolio(filename):
         portfolio = []
         with open(filename) as f:
             rows = csv.reader(f)
             headers = next(rows)
             for row in rows:
-                portfolio.append(Stock(row[0], row[1], row[2]))
+                portfolio.append(Stock.from_row(row))
         return headers, portfolio
 
-    @classmethod
-    def print_portfolio(cls, headers, portfolio):
+    @staticmethod
+    def print_portfolio(portfolio):
         dashes = '-' * 10
-        print(f'{headers[0]:>10} {headers[1]:>10} {headers[2]:>10}')
+        name = 'name'
+        shares = 'shares'
+        price = 'price'
+        print(f'{name:>10} {shares:>10} {price:>10}')
         print(f'{dashes:>10} {dashes:>10} {dashes:>10}')
         for row in portfolio:
             print(f'{row.name:>10} {row.shares:>10} {row.price:>10}')
+
+class DStock(Stock):
+    types = (str, int, Decimal)
+
 
