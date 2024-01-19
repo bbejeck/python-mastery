@@ -1,4 +1,10 @@
 
+class TableFormatter:
+    def headings(self, headers):
+        raise NotImplementedError()
+
+    def row(self, rowdata):
+        raise NotImplementedError()
 
 def print_table(obj_list, attr_list):
     dashes = '-' * 8
@@ -10,5 +16,5 @@ def print_table(obj_list, attr_list):
     print('')
     for obj in obj_list:
         for name in attr_list:
-            print(f'{getattr(obj,name):>10}', end='')
+            print(f'{getattr(obj ,name):>10}', end='')
         print('')
