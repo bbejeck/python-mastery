@@ -1,4 +1,3 @@
-
 class TableFormatter:
     def headings(self, headers):
         raise NotImplementedError()
@@ -6,15 +5,43 @@ class TableFormatter:
     def row(self, rowdata):
         raise NotImplementedError()
 
-def print_table(obj_list, attr_list):
-    dashes = '-' * 8
-    for name in attr_list:
-        print(f'{name:>10}', end='')
-    print('')
-    for idx in range(0, len(attr_list)):
-        print(f'{dashes:>10}', end='')
-    print('')
-    for obj in obj_list:
-        for name in attr_list:
-            print(f'{getattr(obj ,name):>10}', end='')
-        print('')
+
+class TextTableFormatter(TableFormatter):
+    def headings(self, headers):
+        print(' '.join('%10s' % h for h in headers))
+        print(('-' * 10 + ' ') * len(headers))
+
+    def row(self, rowdata):
+        print(' '.join('%10s' % d for d in rowdata))
+
+
+class CSVTableFormatter(TableFormatter):
+    def headings(self, headers):
+        print(','.join(str(h) for h in headers))
+
+    def row(self, rowdata):
+        print(','.join(str(r) for r in rowdata))
+
+
+class HTMLTableFormatter(TableFormatter):
+    def headings(self, headers):
+        print('<tr>', ''.join(f'<th>{h}</th>' for h in headers), '</tr>')
+
+    def row(self, rowdata):
+        print('<tr>', ''.join(f'<td>{h}</td>' for h in rowdata), '</tr>')
+
+
+def create_formatter(format):
+    if format == 'csv':
+        return CSVTableFormatter()
+    elif format == 'html':
+        return HTMLTableFormatter()
+    else:
+        return TextTableFormatter()
+
+
+def print_table(records, fields, formatter):
+    formatter.headings(fields)
+    for r in records:
+        rowdata = [getattr(r, fieldname) for fieldname in fields]
+        formatter.row(rowdata)
