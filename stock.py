@@ -33,17 +33,18 @@ class Stock:
     @price.setter
     def price(self, value):
         if not isinstance(value, self._types[2]):
-            raise TypeError(f'Expected {str(self._types[2])}')
+            raise TypeError(f'Expected {self._types[2].__name__}')
         if value < 0:
-            raise TypeError('price must be >= 0')
+            raise ValueError('price must be >= 0')
         self._price = value
+
 
     @shares.setter
     def shares(self, value):
         if not isinstance(value, int):
-            raise TypeError('Expected int')
+            raise TypeError(f'Expected {self._types[1].__name__}')
         if value < 0:
-            raise TypeError('shares must be >= 0')
+            raise ValueError('shares must be >= 0')
         self._shares = value
 
     def sell(self, num_shares):
